@@ -5,6 +5,7 @@ Simple template is just title and some columns of data.
 
 With this tool, you can write report xml description in form like
 
+'''xml
 <?xml version="1.0" encoding="UTF-8"?>
 <reportStub>
     <title>Title of the Report</title>
@@ -13,5 +14,6 @@ With this tool, you can write report xml description in form like
     <column title="Third column' title" width="100" field="dataField3"/>
     <column title="Fourth column' title" width="150" field="dataField4"/>
 </reportStub>
+'''
 
 and tool will expand it to a proper .jrxml
