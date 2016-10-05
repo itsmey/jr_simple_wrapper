@@ -1,0 +1,13 @@
+    <title>
+        <band height = "50">
+            <textField>
+                <reportElement x = "0" y = "0" width = "{{{TOTAL_WIDTH}}}" height = "30"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="Arial" size="14" isBold="true"/>
+                </textElement>
+                <textFieldExpression>
+                    <![CDATA["{{{TITLE}}}"]]>
+                </textFieldExpression>
+            </textField>
+        </band>
+    </title>
