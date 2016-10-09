@@ -33,10 +33,6 @@ class OutputParser {
             return this;
         }
 
-        ParsingText pasteSection(String sectionName, StringBuilder sectionText) {
-            return pasteSection(sectionName, sectionText.toString());
-        }
-
         ParsingText pasteSection(String sectionName, ParsingText sectionText) {
             return pasteSection(sectionName, sectionText.toString());
         }
@@ -74,7 +70,8 @@ class OutputParser {
 
             String content;
             while ((content = reader.readLine()) != null) {
-                data.append(content + "\n");
+                data.append(content)
+                    .append("\n");
             }
 
         } catch (IOException e) {
@@ -112,7 +109,7 @@ class OutputParser {
 
     private static StringBuilder pasteAll(StubParameters stubParameters) {
 
-        List<StubParameters.Column> columns = new ArrayList<StubParameters.Column>();
+        List<StubParameters.Column> columns = new ArrayList<>();
         columns.add(new StubParameters.Column("№ п/п", "!COUNTER", 50));
         columns.addAll(stubParameters.getColumns());
 
