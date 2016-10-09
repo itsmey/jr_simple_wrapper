@@ -5,8 +5,10 @@ import java.util.List;
 import static java.util.UUID.randomUUID;
 
 class OutputParser {
+    private static String templatesFolder;
+
     private static StringBuilder LoadFromFile(String filename) {
-        File file = new File(filename);
+        File file = new File(templatesFolder + "/" + filename);
         BufferedReader reader = null;
 
         StringBuilder data = new StringBuilder();
@@ -135,13 +137,20 @@ class OutputParser {
         return commonTemplate;
     }
 
-    static void GenerateStub(String templateFileName,
+    static void GenerateStub(String templatesFolderName,
                              String stubFileName,
                              StubParameters stubParameters) {
-        StringBuilder template = LoadFromFile(templateFileName);
+        setTemplatesFolder(templatesFolderName);
+
+        StringBuilder template = LoadFromFile(Constants.JR_TEMPLATE);
 
         template = pasteAll(template, stubParameters);
 
         WriteToFile(stubFileName, template);
     }
+
+    private static void setTemplatesFolder(String templatesFolderName) {
+        templatesFolder = templatesFolderName;
+    }
+
 }
