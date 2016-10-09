@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <reportStub>
-    <title>Реестр Метрологических служб Компании</title>
-    <column title="Наименование ОСТ" width="200" field="OstName"/>
-    <column title="Дата включения в реестр" width="100" field="InclusionDate"/>
-    <column title="Очередной срок подтверждения" width="100" field="ConfirmationDate"/>
-    <column title="Виды деятельности" width="150" field="TypesOfWork"/>
+    <title>Company's Metrological Services Register</title>
+    <column title="OST Name" width="200" field="OstName"/>
+    <column title="Inclusion date" width="100" field="InclusionDate"/>
+    <column title="Next confirmation date" width="100" field="ConfirmationDate"/>
+    <column title="Types of work" width="150" field="TypesOfWork"/>
 </reportStub>
