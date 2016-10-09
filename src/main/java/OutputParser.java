@@ -5,6 +5,62 @@ import java.util.List;
 import static java.util.UUID.randomUUID;
 
 class OutputParser {
+
+    private static class ParsingText {
+        private StringBuilder text;
+
+        ParsingText() {
+            text = new StringBuilder();
+        }
+
+        ParsingText(String filename) {
+            text = LoadFromFile(filename);
+        }
+
+        ParsingText pasteSection(String sectionName, String sectionText) {
+            String sectionPattern = "{{{" + sectionName + "}}}";
+
+            int start = text.indexOf(sectionPattern);
+
+            if (start != -1) {
+                int end = start + sectionPattern.length();
+                text.replace(start, end, sectionText);
+            } else {
+                System.out.println("section pattern not found!");
+
+            }
+
+            return this;
+        }
+
+        ParsingText pasteSection(String sectionName, StringBuilder sectionText) {
+            return pasteSection(sectionName, sectionText.toString());
+        }
+
+        ParsingText pasteSection(String sectionName, ParsingText sectionText) {
+            return pasteSection(sectionName, sectionText.toString());
+        }
+
+        ParsingText pasteUUID() {
+            return pasteSection("UUID", randomUUID().toString());
+        }
+
+        public String toString() {
+            return text.toString();
+        }
+
+        StringBuilder getText() {
+            return text;
+        }
+
+        ParsingText append(ParsingText additionalText) {
+            text.append(additionalText.toString());
+
+            return this;
+        }
+
+    }
+
     private static String templatesFolder;
 
     private static StringBuilder LoadFromFile(String filename) {
@@ -54,33 +110,7 @@ class OutputParser {
         }
     }
 
-    private static StringBuilder pasteSection(StringBuilder template,
-                                      String sectionName,
-                                      String sectionText) {
-        String sectionPattern = "{{{" + sectionName + "}}}";
-
-        int start = template.indexOf(sectionPattern);
-
-        if (start != -1) {
-            int end = start + sectionPattern.length();
-            return template.replace(start, end, sectionText);
-        } else {
-            System.out.println("section pattern not found!");
-            return template;
-        }
-    }
-
-    private static StringBuilder pasteSection(StringBuilder template,
-                String sectionName,
-                StringBuilder sectionText) {
-        return pasteSection(template, sectionName, sectionText.toString());
-    }
-
-    private static StringBuilder pasteUUID(StringBuilder template) {
-        return pasteSection(template, "UUID", randomUUID().toString());
-    }
-
-    private static StringBuilder pasteAll(StringBuilder commonTemplate, StubParameters stubParameters) {
+    private static StringBuilder pasteAll(StubParameters stubParameters) {
 
         List<StubParameters.Column> columns = new ArrayList<StubParameters.Column>();
         columns.add(new StubParameters.Column("№ п/п", "!COUNTER", 50));
@@ -88,53 +118,56 @@ class OutputParser {
 
         int currentWidth = 0;
 
-        StringBuilder titleTemplate = LoadFromFile(Constants.TITLE_TEMPLATE);
-        StringBuilder headers = new StringBuilder();
-        StringBuilder data = new StringBuilder();
-        StringBuilder fields = new StringBuilder();
-
-        StringBuilder templ;
+        ParsingText headers = new ParsingText();
+        ParsingText data = new ParsingText();
+        ParsingText fields = new ParsingText();
 
         for (StubParameters.Column column: columns) {
             String width = String.valueOf(column.width);
 
-            templ = LoadFromFile(Constants.STATIC_TEXT_TEMPLATE);
-            templ = pasteSection(templ, "X", String.valueOf(currentWidth));
-            templ = pasteSection(templ, "WIDTH", width);
-            templ = pasteSection(templ, "TITLE", column.title);
-            templ = pasteUUID(templ);
-            headers.append(templ.toString());
+            headers.append(
+                new ParsingText(Constants.STATIC_TEXT_TEMPLATE)
+                   .pasteSection("X", String.valueOf(currentWidth))
+                   .pasteSection("WIDTH", width)
+                   .pasteSection("TITLE", column.title)
+                   .pasteUUID()
+            );
 
-            templ = LoadFromFile(Constants.FIELD_TEMPLATE);
-            templ = pasteSection(templ, "X", String.valueOf(currentWidth));
-            templ = pasteSection(templ, "WIDTH", width);
-            if (!column.fieldName.equals("!COUNTER"))
-                templ = pasteSection(templ, "FIELD_REF", "$F{" + column.fieldName + "}");
-            else
-                templ = pasteSection(templ, "FIELD_REF", "$V{REPORT_COUNT}");
-            templ = pasteUUID(templ);
-            data.append(templ.toString());
+            String fieldRef = column.fieldName.equals("!COUNTER") ?
+                    "$V{REPORT_COUNT}" :
+                    "$F{" + column.fieldName + "}";
+
+            data.append(
+                new ParsingText(Constants.FIELD_TEMPLATE)
+                   .pasteSection("X", String.valueOf(currentWidth))
+                   .pasteSection("WIDTH", width)
+                   .pasteSection("FIELD_REF", fieldRef)
+                   .pasteUUID()
+            );
 
             if (!column.fieldName.equals("!COUNTER")) {
-                templ = LoadFromFile(Constants.FIELD_DECL_TEMPLATE);
-                templ = pasteSection(templ, "FIELD_NAME", column.fieldName);
-                fields.append(templ.toString());
+                fields.append(
+                        new ParsingText(Constants.FIELD_DECL_TEMPLATE)
+                            .pasteSection("FIELD_NAME", column.fieldName)
+                );
             }
 
             currentWidth += column.width;
         }
 
-        titleTemplate = pasteSection(titleTemplate, "TITLE", stubParameters.getTitle());
-        titleTemplate = pasteSection(titleTemplate, "TOTAL_WIDTH", String.valueOf(currentWidth));
+        ParsingText titleTemplate = new ParsingText(Constants.TITLE_TEMPLATE)
+            .pasteSection("TITLE", stubParameters.getTitle())
+            .pasteSection("TOTAL_WIDTH", String.valueOf(currentWidth));
 
-        commonTemplate = pasteSection(commonTemplate, "NAME", stubParameters.getTitle());
-        commonTemplate = pasteSection(commonTemplate, "TITLE", titleTemplate);
-        commonTemplate = pasteSection(commonTemplate, "FIELDS", fields);
-        commonTemplate = pasteSection(commonTemplate, "HEADER", headers);
-        commonTemplate = pasteSection(commonTemplate, "DATA", data);
-        commonTemplate = pasteUUID(commonTemplate);
+        ParsingText commonTemplate = new ParsingText(Constants.JR_TEMPLATE)
+            .pasteSection("NAME", stubParameters.getTitle())
+            .pasteSection("TITLE", titleTemplate)
+            .pasteSection("FIELDS", fields)
+            .pasteSection("HEADER", headers)
+            .pasteSection("DATA", data)
+            .pasteUUID();
 
-        return commonTemplate;
+        return commonTemplate.getText();
     }
 
     static void GenerateStub(String templatesFolderName,
@@ -142,9 +175,7 @@ class OutputParser {
                              StubParameters stubParameters) {
         setTemplatesFolder(templatesFolderName);
 
-        StringBuilder template = LoadFromFile(Constants.JR_TEMPLATE);
-
-        template = pasteAll(template, stubParameters);
+        StringBuilder template = pasteAll(stubParameters);
 
         WriteToFile(stubFileName, template);
     }
