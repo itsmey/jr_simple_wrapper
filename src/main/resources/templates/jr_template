@@ -25,7 +25,7 @@
 {{{TITLE}}}
 
     <columnHeader>
-        <band height="30" splitType="Stretch">
+        <band height="120" splitType="Stretch">
             <property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 
 {{{HEADER}}}

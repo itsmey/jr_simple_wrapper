@@ -1,5 +1,5 @@
             <staticText>
-                <reportElement x="{{{X}}}" y="0" width="{{{WIDTH}}}" height="30" uuid="{{{UUID}}}"/>
+                <reportElement x="{{{X}}}" y="0" width="{{{WIDTH}}}" height="120" uuid="{{{UUID}}}"/>
                 <box>
                     <topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
                     <leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
